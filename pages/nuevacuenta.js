@@ -2,9 +2,30 @@ import React from "react";
 import Layout from "../components/Layout";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useQuery, gql } from '@apollo/client'
+
+
+const QUERY = gql`
+  query obetenerProductos {
+    obtenerProductos {
+      id
+      nombre
+      precio
+      existencia
+      creado
+    }
+  }
+`;
 
 
 const NuevaCuenta = () => {
+
+  //Obteer Productos de graphql
+  const { data, loading, error } = useQuery(QUERY);
+
+  console.log(data);
+  console.log(loading)
+  console.log(error)
 
   //Validacion de formik
   const formik = useFormik({
@@ -65,7 +86,7 @@ const NuevaCuenta = () => {
                 />
               </div>
 
-              { formik.touched.nombre && formik.errors.nombre ? (
+              {formik.touched.nombre && formik.errors.nombre ? (
                 <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
                   <p className="font-bold">Error</p>
                   <p>{formik.errors.nombre}</p>
@@ -90,12 +111,12 @@ const NuevaCuenta = () => {
                 />
               </div>
 
-              { formik.touched.apellido && formik.errors.apellido ? (
+              {formik.touched.apellido && formik.errors.apellido ? (
                 <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
                   <p className="font-bold">Error</p>
                   <p>{formik.errors.apellido}</p>
                 </div>
-              ) : null }
+              ) : null}
 
               <div className="mb-4">
                 <label
@@ -115,11 +136,11 @@ const NuevaCuenta = () => {
                 />
               </div>
 
-              { formik.touched.email && formik.errors.email ? (
-                  <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
-                     <p className="font-bold">Error</p> 
-                     <p>{formik.errors.email}</p>
-                    </div>
+              {formik.touched.email && formik.errors.email ? (
+                <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+                  <p className="font-bold">Error</p>
+                  <p>{formik.errors.email}</p>
+                </div>
               ) : null}
 
               <div className="mb-4">
@@ -138,6 +159,13 @@ const NuevaCuenta = () => {
                   onChange={formik.handleChange}
                 />
               </div>
+
+              {formik.touched.password && formik.errors.password ? (
+                <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+                  <p className="font-bold">Error</p>
+                  <p>{formik.errors.password}</p>
+                </div>
+              ) : null}
 
               <input
                 type="submit"

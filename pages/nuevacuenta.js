@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { useQuery, gql } from '@apollo/client'
 
 
+
 const QUERY = gql`
   query obetenerProductos {
     obtenerProductos {
@@ -24,8 +25,8 @@ const NuevaCuenta = () => {
   const { data, loading, error } = useQuery(QUERY);
 
   console.log(data);
-  console.log(loading)
-  console.log(error)
+  console.log(loading);
+  console.log(error);
 
   //Validacion de formik
   const formik = useFormik({
@@ -53,7 +54,9 @@ const NuevaCuenta = () => {
       console.log(valores);
     }
   })
-
+ 
+  if(loading) return 'Cargando....';
+  
 
   return (
     <>

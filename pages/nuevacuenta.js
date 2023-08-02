@@ -1,32 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useQuery, gql } from '@apollo/client'
+import { useMutation, gql } from '@apollo/client';
+import { motion } from "framer-motion";
+import { fadeIn } from "../utils/motion"
 
-
-
-const QUERY = gql`
-  query obetenerProductos {
-    obtenerProductos {
-      id
-      nombre
-      precio
-      existencia
-      creado
-    }
+const NUEVA_CUENTA = gql`
+  mutation nuevoUsuario($input: UsuarioInput) {
+  nuevoUsuario (input: $input) {
+    id
+    nombre
+    apellido
+    email
   }
+}
 `;
-
 
 const NuevaCuenta = () => {
 
-  //Obteer Productos de graphql
-  const { data, loading, error } = useQuery(QUERY);
+  // State para el mensaje
+  const [ mensaje, guardarMensaje ] = useState(null);
 
-  console.log(data);
-  console.log(loading);
-  console.log(error);
+  // Mutation para crear nuevos usuarios
+  const [ nuevoUsuario ] = useMutation(NUEVA_CUENTA);
+
+  // Routing
+  const router = useRouter();
 
   //Validacion de formik
   const formik = useFormik({
@@ -36,7 +37,6 @@ const NuevaCuenta = () => {
       email: '',
       password: ''
     },
-
     validationSchema: Yup.object({
       nombre: Yup.string()
           .required('El nombre es obligatorio rey'),
@@ -49,18 +49,67 @@ const NuevaCuenta = () => {
           .min(6,'El password debe ser al menos 6 caracteres')
     }),
 
-    onSubmit: valores => {
-      console.log('enviando');
-      console.log(valores);
+    onSubmit: async valores => {
+      //   console.log('enviando');
+      // console.log(valores);
+
+      const { nombre, apellido, email, password } = valores;
+      
+      try {
+        const { data } = await nuevoUsuario({
+          variables: {
+            input: {
+              nombre,
+              apellido,
+              email,
+              password
+            }
+          }
+        });
+          console.log(data);
+
+          // USUARIO CREADO CORRECTAMENTE 
+          guardarMensaje(`Se creo correctamente el usuario: ${data.nuevoUsuario.nombre} `);
+          
+          setTimeout(() => {
+            guardarMensaje(null); 
+            router.push('/login')
+          }, 3000)
+
+          // REDIGIR USUARIO PARA INICIAR SESION
+          
+
+
+        } catch (error) {
+          guardarMensaje(error.message.replace('error: ', ''));
+
+          setTimeout(() => {
+            guardarMensaje(null);
+          }, 3000)
+      }
     }
-  })
+  });
+
  
-  if(loading) return 'Cargando....';
+  // if(loading) return 'Cargando....';
+  const mostrarMensaje = () => {
+    return (
+      <motion.div 
+      className="bg-white py-2 px-3 w-full my-3 max-w-sm text-center mx-auto"
+      animate={{ fadeIn }}
   
+      >
+        <p>{mensaje}</p>
+      </motion.div>
+    )
+  }
 
   return (
     <>
-      <Layout>
+      <Layout> 
+
+         { mensaje && mostrarMensaje() }
+
         <h1 className="text-center text-2xl text-white font-light ">
           Crear Nueva Cuenta
         </h1>
